@@ -224,3 +224,14 @@ jobs:
             echo "📜 最近日志（最后 30 行）:"
             tail -30 logs/stock_analysis_*.log 2>/dev/null || echo "无日志"
           fi
+          - name: 自动更新网页报告
+        if: always()
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          mkdir -p docs
+          # 尝试将生成的 HTML 报告搬运到 docs 文件夹
+          cp reports/*.html docs/index.html || cp reports/*.md docs/index.md || echo "跳过：未生成报告文件"
+          git add docs/
+          git commit -m "Update Daily Report: $(date +'%Y-%m-%d')" || echo "内容未变"
+          git push
